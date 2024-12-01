@@ -3,6 +3,10 @@ use std::fs;
 fn main() {
     let (list_one, list_two) = parse_file("input.txt");
     println!("{}", get_list_distance(list_one.clone(), list_two.clone()));
+    println!(
+        "{}",
+        get_list_similarity(list_one.clone(), list_two.clone())
+    );
 }
 
 fn get_list_distance(list_one: Vec<i32>, list_two: Vec<i32>) -> i32 {
@@ -36,6 +40,15 @@ fn get_list_distance(list_one: Vec<i32>, list_two: Vec<i32>) -> i32 {
     return total_distance;
 }
 
+fn get_list_similarity(list_one: Vec<i32>, list_two: Vec<i32>) -> i32 {
+    let mut similarity = 0;
+    for list_element in list_one.iter() {
+        let occurences: i32 = list_two.iter().filter(|&n| *n == *list_element).count() as i32;
+
+        similarity += list_element * occurences
+    }
+    return similarity;
+}
 
 fn parse_file(file_path: &str) -> (Vec<i32>, Vec<i32>) {
     let contents = fs::read_to_string(file_path).unwrap();
@@ -107,6 +120,24 @@ mod tests {
         let list_two = vec![4, 3, 5, 3, 9, 3];
         let want = 11;
         let result = get_list_distance(list_one, list_two);
+        assert_eq!(want, result);
+    }
+
+    #[test]
+    fn list_similarity_test_expect_6() {
+        let list_one = vec![1, 2, 3];
+        let list_two = vec![1, 2, 3];
+        let want = 6;
+        let result = get_list_similarity(list_one, list_two);
+        assert_eq!(want, result);
+    }
+
+    #[test]
+    fn list_similarity_test_example() {
+        let list_one = vec![3, 4, 2, 1, 3, 3];
+        let list_two = vec![4, 3, 5, 3, 9, 3];
+        let want = 31;
+        let result = get_list_similarity(list_one, list_two);
         assert_eq!(want, result);
     }
 
