@@ -9,12 +9,24 @@ fn count_safe_reports(lists: Vec<Vec<i32>>) -> i32 {
     let mut safe_reports = 0;
 
     for list in lists {
-        if step_size_safe(&list) && report_direction_safe(&list) {
+        if (step_size_safe(&list) && report_direction_safe(&list)) | single_bad_step(&list) {
             safe_reports += 1
         }
     }
 
     return safe_reports;
+}
+
+fn single_bad_step(list: &Vec<i32>) -> bool {
+    for (index, _) in list.iter().enumerate() {
+        let mut new_list = list.clone();
+        new_list.remove(index);
+
+        if step_size_safe(&new_list) && report_direction_safe(&new_list) {
+            return true;
+        }
+    }
+    return false;
 }
 
 fn step_size_safe(list: &Vec<i32>) -> bool {
@@ -147,7 +159,7 @@ mod tests {
 
     #[test]
     fn count_safe_reports_test_expect_0() {
-        let lists = vec![vec![1, 2, 3, 4, 9], vec![9, 4, 3, 2, 1]];
+        let lists = vec![vec![1, 2, 3, 1, 9], vec![9, 4, 7, 2, 1]];
         let result = count_safe_reports(lists);
         let want = 0;
         assert_eq!(want, result);
@@ -180,7 +192,23 @@ mod tests {
             vec![1, 3, 6, 7, 9],
         ];
         let result = count_safe_reports(lists);
-        let want = 2;
+        let want = 4;
+        assert_eq!(want, result);
+    }
+
+    #[test]
+    fn single_bad_step_test_expect_true() {
+        let list = vec![1, 2, 8, 4, 5];
+        let result = single_bad_step(&list);
+        let want = true;
+        assert_eq!(want, result);
+    }
+
+    #[test]
+    fn single_bad_step_test_expect_false() {
+        let list = vec![1, 2, 8, 11, 5];
+        let result = single_bad_step(&list);
+        let want = false;
         assert_eq!(want, result);
     }
 }
