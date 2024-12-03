@@ -7,7 +7,13 @@ use std::{
 use regex::Regex;
 
 fn main() {
-    unimplemented!()
+    let lines = parse_file("input.txt");
+    let mut total = 0;
+    for line in lines {
+        let digits = parse_instances_of_mul_in_string(line);
+        total += sum_products(&digits);
+    }
+    println!("{}", total)
 }
 
 // thanks stackoverflow
