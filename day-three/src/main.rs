@@ -26,11 +26,12 @@ fn parse_file(file_path: impl AsRef<Path>) -> Vec<String> {
 }
 
 fn parse_instances_of_mul_in_string(string: String) -> Vec<(i32, i32)> {
-    let pattern = Regex::new(r"(?:mul\((\d+),(\d+)\))").unwrap();
+    let pattern = Regex::new(r"(?:mul\((?<one>\d+),(?<two>\d+)\))").unwrap();
     let digits: Vec<(i32, i32)> = pattern
         .captures_iter(string.as_str())
         .map(|caps| {
-            let (_, [digit_one, digit_two]) = caps.extract();
+            let digit_one = caps.name("one").unwrap().as_str();
+            let digit_two = caps.name("two").unwrap().as_str();
             (
                 digit_one.parse::<i32>().unwrap(),
                 digit_two.parse::<i32>().unwrap(),
@@ -78,8 +79,8 @@ mod tests {
         let result_length = result.len();
         let want = vec![(2, 4)];
         let want_length = 1;
-        assert_eq!(want_length, result_length);
         assert_eq!(want, result);
+        assert_eq!(want_length, result_length);
     }
 
     #[test]
@@ -89,8 +90,8 @@ mod tests {
         let result_length = result.len();
         let want = vec![(2, 4), (4, 1)];
         let want_length = 2;
-        assert_eq!(want_length, result_length);
         assert_eq!(want, result);
+        assert_eq!(want_length, result_length);
     }
 
     #[test]
@@ -100,8 +101,8 @@ mod tests {
         let result_length = result.len();
         let want = vec![(2, 4), (4, 1)];
         let want_length = 2;
-        assert_eq!(want_length, result_length);
         assert_eq!(want, result);
+        assert_eq!(want_length, result_length);
     }
 
     #[test]
