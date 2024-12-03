@@ -4,6 +4,8 @@ use std::{
     path::Path,
 };
 
+use regex::Regex;
+
 fn main() {
     unimplemented!()
 }
@@ -17,6 +19,20 @@ fn parse_file(file_path: impl AsRef<Path>) -> Vec<String> {
         .collect()
 }
 
+fn parse_instances_of_mul_in_string(string: String) -> Vec<(i32, i32)> {
+    let pattern = Regex::new(r"(?:mul\((\d+),(\d+)\))").unwrap();
+    let digits: Vec<(i32, i32)> = pattern
+        .captures_iter(string.as_str())
+        .map(|caps| {
+            let (_, [digit_one, digit_two]) = caps.extract();
+            (
+                digit_one.parse::<i32>().unwrap(),
+                digit_two.parse::<i32>().unwrap(),
+            )
+        })
+        .collect();
+
+    return digits;
 }
 
 
@@ -40,4 +56,49 @@ mod tests {
         ];
         assert_eq!(want, result);
     }
+
+    #[test]
+    fn parse_instances_of_mul_in_string_test_expect_one() {
+        let string = "mul(2,4)extrawordsnothingmuch".to_string();
+        let result = parse_instances_of_mul_in_string(string);
+        let result_length = result.len();
+        let want = vec![(2, 4)];
+        let want_length = 1;
+        assert_eq!(want_length, result_length);
+        assert_eq!(want, result);
+    }
+
+    #[test]
+    fn parse_instances_of_mul_in_string_test_expect_two() {
+        let string = "mul(2,4)extrawordsmul(4,1)nothingmuch".to_string();
+        let result = parse_instances_of_mul_in_string(string);
+        let result_length = result.len();
+        let want = vec![(2, 4), (4, 1)];
+        let want_length = 2;
+        assert_eq!(want_length, result_length);
+        assert_eq!(want, result);
+    }
+
+    #[test]
+    fn parse_instances_of_mul_in_string_test_expect_two_with_interference() {
+        let string = "mul(2,4)extramul(2,2wordsmul(4,1)nothingmuch".to_string();
+        let result = parse_instances_of_mul_in_string(string);
+        let result_length = result.len();
+        let want = vec![(2, 4), (4, 1)];
+        let want_length = 2;
+        assert_eq!(want_length, result_length);
+        assert_eq!(want, result);
+    }
+    #[test]
+    fn parse_instances_of_mul_in_string_test_example() {
+        let string =
+            "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))".to_string();
+        let result = parse_instances_of_mul_in_string(string);
+        let result_length = result.len();
+        let want = vec![(2, 4), (5, 5), (11, 8), (8, 5)];
+        let want_length = 4;
+        assert_eq!(want_length, result_length);
+        assert_eq!(want, result);
+    }
+
 }
