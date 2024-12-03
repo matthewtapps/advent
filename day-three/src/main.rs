@@ -35,6 +35,14 @@ fn parse_instances_of_mul_in_string(string: String) -> Vec<(i32, i32)> {
     return digits;
 }
 
+fn sum_products(digits: &Vec<(i32, i32)>) -> i32 {
+    let mut total = 0;
+    for (digit_one, digit_two) in digits {
+        total += *digit_one * *digit_two
+    }
+
+    return total;
+}
 
 #[cfg(test)]
 mod tests {
@@ -89,6 +97,7 @@ mod tests {
         assert_eq!(want_length, result_length);
         assert_eq!(want, result);
     }
+
     #[test]
     fn parse_instances_of_mul_in_string_test_example() {
         let string =
@@ -101,4 +110,27 @@ mod tests {
         assert_eq!(want, result);
     }
 
+    #[test]
+    fn sum_products_test_expect_4() {
+        let digits = vec![(2, 2)];
+        let result = sum_products(&digits);
+        let want = 4;
+        assert_eq!(want, result);
+    }
+
+    #[test]
+    fn sum_products_test_expect_13() {
+        let digits = vec![(2, 2), (3, 3)];
+        let result = sum_products(&digits);
+        let want = 13;
+        assert_eq!(want, result);
+    }
+
+    #[test]
+    fn sum_products_example() {
+        let digits = vec![(2, 4), (5, 5), (11, 8), (8, 5)];
+        let result = sum_products(&digits);
+        let want = 161;
+        assert_eq!(want, result);
+    }
 }
