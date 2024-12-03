@@ -21,16 +21,12 @@ fn calculate_conditional_result(line: String) -> i32 {
     let mut total = 0;
     let mut valid = true;
     let mul_instances = capture_mul_and_prefix(&line);
-    for (index, instance) in mul_instances.iter().enumerate() {
+    for instance in mul_instances {
         let dos_or_donts = capture_do_or_dont(&instance);
+        let length = dos_or_donts.len();
         let last_prefix = last_prefix_is_do(&dos_or_donts);
-        if index == 0 {
-            if dos_or_donts.len() == 0 || last_prefix {
-                let digits = parse_instances_of_mul_in_string(&instance);
-                total += sum_products(&digits);
-            }
-        } else if valid {
-            if last_prefix {
+        if valid {
+            if length == 0 || last_prefix {
                 let digits = parse_instances_of_mul_in_string(&instance);
                 total += sum_products(&digits);
             } else {
@@ -43,6 +39,7 @@ fn calculate_conditional_result(line: String) -> i32 {
                 total += sum_products(&digits);
             }
         }
+        println!("{instance}, {valid}");
     }
     return total;
 }
