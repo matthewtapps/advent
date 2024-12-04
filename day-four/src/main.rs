@@ -165,16 +165,6 @@ fn get_direction_from_coordinates(
     }
 }
 
-fn coordinate_is_next_letter(
-    current_letter: &i32,
-    coordinate: &(i32, i32),
-    wordsearch: &Vec<String>,
-) -> bool {
-    let next_letter = *current_letter + 1;
-    let coordinate_letter = get_letter_for_coordinate(&coordinate, &wordsearch);
-    return coordinate_letter == next_letter;
-}
-
 fn get_letter_for_coordinate(coordinate: &(i32, i32), wordsearch: &Vec<String>) -> i32 {
     let slice_coordinate = get_slice_coordinate(&coordinate);
     return get_letter_for_slice_coordinate(&slice_coordinate, &wordsearch);
@@ -402,22 +392,6 @@ mod tests {
         let coordinate = (2, 3);
         let result = get_letter_for_coordinate(&coordinate, &wordsearch);
         let want = 2;
-        assert_eq!(want, result)
-    }
-
-    #[test]
-    fn coordinate_is_next_letter_test() {
-        let wordsearch = vec![
-            // Horizontal and diagonal
-            "XMAS".to_string(),
-            "XMAS".to_string(),
-            "XMAS".to_string(),
-            "XMAS".to_string(),
-        ];
-        let current_letter = 1;
-        let coordinate = (2, 0);
-        let result = coordinate_is_next_letter(&current_letter, &coordinate, &wordsearch);
-        let want = true;
         assert_eq!(want, result)
     }
 
