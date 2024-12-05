@@ -7,7 +7,8 @@ use std::{
 
 fn main() {
     let wordsearch = parse_file("./input.txt");
-    println!("{}", count_xmas(&wordsearch))
+    println!("{}", count_xmas(&wordsearch));
+    println!("{}", count_mas_crosses(&wordsearch));
 }
 
 // thanks stackoverflow
@@ -110,6 +111,71 @@ fn get_adjacent_coordinates(
             }
         }
     }
+    return adjacent_coordinates;
+}
+
+fn count_mas_crosses(wordsearch: &Vec<String>) -> i32 {
+    let mut total = 0;
+    for (y, line) in wordsearch.iter().enumerate() {
+        for x in 0..line.len() {
+            let coordinate = (i32::try_from(x).unwrap(), i32::try_from(y).unwrap());
+            if coordinate_is_mas_cross(&coordinate, &wordsearch) {
+                total += 1
+            }
+        }
+    }
+
+    return total;
+}
+
+fn coordinate_is_mas_cross(coordinate: &(i32, i32), wordsearch: &Vec<String>) -> bool {
+    let current_coordinate_letter = get_letter_for_coordinate(&coordinate, &wordsearch);
+    if current_coordinate_letter != 2 {
+        return false;
+    }
+
+    let bounds = get_maximum_bounds(&wordsearch);
+    let adjacent_coordinates = get_cross_coordinates_around_coordinate(&coordinate, &bounds);
+
+    if adjacent_coordinates.len() != 4 {
+        return false;
+    }
+
+    let mut adacent_letters = Vec::new();
+
+    for adjacent_coordinate in adjacent_coordinates {
+        adacent_letters.push(get_letter_for_coordinate(&adjacent_coordinate, &wordsearch))
+    }
+
+    let valid_patterns = vec![
+        vec![3, 1, 3, 1],
+        vec![1, 3, 1, 3],
+        vec![1, 1, 3, 3],
+        vec![3, 3, 1, 1],
+    ];
+
+    return valid_patterns.contains(&adacent_letters);
+}
+
+fn get_cross_coordinates_around_coordinate(
+    coordinate: &(i32, i32),
+    bounds: &(i32, i32),
+) -> Vec<(i32, i32)> {
+    let (x_coordinate, y_coordinate) = coordinate;
+    let mut adjacent_coordinates: Vec<(i32, i32)> = Vec::new();
+    let check_coordinates = vec![
+        (x_coordinate - 1, y_coordinate - 1),
+        (x_coordinate + 1, y_coordinate - 1),
+        (x_coordinate - 1, y_coordinate + 1),
+        (x_coordinate + 1, y_coordinate + 1),
+    ];
+
+    for check in check_coordinates {
+        if !coordinate_out_of_bounds(&check, &bounds) {
+            adjacent_coordinates.push(check)
+        }
+    }
+
     return adjacent_coordinates;
 }
 
@@ -412,5 +478,36 @@ mod tests {
         let result = get_next_two_coordinates_in_direction(&coordinate, &next_coordinate, &bounds);
         let want = vec![(1, 3), (1, 4)];
         assert_eq!(want, result)
+    }
+
+    #[test]
+    fn get_cross_coordinates_around_coordinate_test() {
+        let coordinate = (1, 1);
+        let bounds = (4, 4);
+        let result = get_cross_coordinates_around_coordinate(&coordinate, &bounds);
+        let want = vec![(0, 0), (2, 0), (0, 2), (2, 2)];
+        assert_eq!(want, result)
+    }
+
+    #[test]
+    fn coordinate_is_mas_cross_test() {
+        let wordsearch = vec![
+            "XMAS".to_string(),
+            "XMAS".to_string(),
+            "XMAS".to_string(),
+            "XMAS".to_string(),
+        ];
+        let coordinate = (2, 2);
+        let result = coordinate_is_mas_cross(&coordinate, &wordsearch);
+        let want = true;
+        assert_eq!(want, result)
+    }
+
+    #[test]
+    fn part_two_acceptance_test() {
+        let wordsearch = parse_file("./mocks/example.txt");
+        let result = count_mas_crosses(&wordsearch);
+        let want = 9;
+        assert_eq!(want, result);
     }
 }
