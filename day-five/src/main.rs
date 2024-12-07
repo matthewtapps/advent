@@ -8,7 +8,10 @@ fn main() {
     let input = parse_file("input.txt");
     let (rules, lists) = parse_input(&input);
     let result = get_valid_lists_score(&rules, &lists);
-    println!("{}", result)
+    println!("{}", result);
+
+    let part_two_result = get_invalid_lists_score(&rules, &lists);
+    println!("{}", part_two_result);
 }
 
 fn get_relevant_rules_for_lists(rules: &Vec<(i32, i32)>, lists: &Vec<Vec<i32>>) -> Vec<(i32, i32)> {
@@ -56,6 +59,37 @@ fn list_is_valid(rules: &Vec<(i32, i32)>, list: &Vec<i32>) -> bool {
         }
     }
     return true;
+}
+
+fn sort_invalid_list(rules: &Vec<(i32, i32)>, list: &Vec<i32>) -> Vec<i32> {
+    let mut new_len: usize;
+    let mut len = list.len();
+    let mut valid_list = list.clone();
+
+    loop {
+        new_len = 0;
+
+        for i in 1..len {
+            for rule in rules {
+                let (parent, child) = rule;
+                let current_value = valid_list[i];
+                let previous_value = valid_list[i - 1];
+
+                if current_value == *parent && previous_value == *child {
+                    valid_list.swap(i - 1, i);
+                    new_len = i;
+                }
+            }
+        }
+
+        if new_len == 0 {
+            break;
+        }
+
+        len = new_len;
+    }
+
+    return valid_list;
 }
 
 // thanks stackoverflow
@@ -118,6 +152,32 @@ fn get_valid_lists_score(rules: &Vec<(i32, i32)>, lists: &Vec<Vec<i32>>) -> i32 
 
     for element in middle_elements {
         total += element;
+    }
+
+    return total;
+}
+
+fn get_invalid_lists_score(rules: &Vec<(i32, i32)>, lists: &Vec<Vec<i32>>) -> i32 {
+    let relevant_rules = get_relevant_rules_for_lists(&rules, &lists);
+    let mut invalid_lists = Vec::new();
+    for list in lists {
+        let relevant_rules_for_list = get_relevant_rules_for_list(&relevant_rules, &list);
+        if !list_is_valid(&relevant_rules_for_list, &list) {
+            invalid_lists.push(list.clone());
+        }
+    }
+    let mut sorted_invalid_lists = Vec::new();
+    for list in &invalid_lists {
+        let relevant_rules_for_list = get_relevant_rules_for_list(&relevant_rules, &list);
+        sorted_invalid_lists.push(sort_invalid_list(&relevant_rules_for_list, &list));
+    }
+
+    let middle_elements = get_middle_elements(&sorted_invalid_lists);
+
+    let mut total = 0;
+
+    for element in middle_elements {
+        total += element
     }
 
     return total;
@@ -188,6 +248,15 @@ mod tests {
         let (rules, lists) = parse_input(&input);
         let result = get_valid_lists_score(&rules, &lists);
         let want = 143;
+        assert_eq!(want, result);
+    }
+
+    #[test]
+    fn part_two_acceptance_test() {
+        let input = parse_file("./mocks/example.txt");
+        let (rules, lists) = parse_input(&input);
+        let result = get_invalid_lists_score(&rules, &lists);
+        let want = 123;
         assert_eq!(want, result);
     }
 }
