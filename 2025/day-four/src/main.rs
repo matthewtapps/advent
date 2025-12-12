@@ -15,13 +15,20 @@ fn parse_file(file_path: impl AsRef<Path>) -> Vec<String> {
 }
 
 fn main() {
-    let factory_map = parse_file(INPUT);
+    let mut factory_map = parse_file(INPUT);
     let mut total = 0;
 
-    for (y, line) in factory_map.iter().enumerate() {
-        for (x, current_char) in line.chars().enumerate() {
-            if current_char == '@' && count_adjacent_rolls(x, y, &factory_map) <= 3 {
-                total += 1;
+    let mut changed = false;
+
+    while total == 0 || changed {
+        changed = false;
+        for (y, line) in factory_map.clone().iter().enumerate() {
+            for (x, current_char) in line.chars().enumerate() {
+                if current_char == '@' && count_adjacent_rolls(x, y, &factory_map) <= 3 {
+                    total += 1;
+                    factory_map[y].replace_range(x..=x, "x");
+                    changed = true;
+                }
             }
         }
     }
@@ -56,10 +63,8 @@ const NEIGHBOUR_INDICES: [(i32, i32); 8] = [
     (-1, -1),
     (0, -1),
     (1, -1),
-
     (-1, 0),
     (1, 0),
-
     (-1, 1),
     (0, 1),
     (1, 1),
