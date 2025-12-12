@@ -18,27 +18,22 @@
       system:
       let
         overlays = [ (import rust-overlay) ];
-        pkgs = import nixpkgs { inherit system overlays; };
-        toolchain = pkgs.rust-bin.beta.latest.minimal.override {
-          targets = [
-            "x86_64-unknown-linux-gnu"
-          ];
+        pkgs = import nixpkgs {
+          inherit system overlays;
         };
       in
-      with pkgs;
       {
-        devShells.default = mkShell {
-          buildInputs = [
-            rustc
-            cargo
-
-            rust-analyzer
-            rustfmt
-            clippy
-          ];
-
-          RUST_SRC_PATH = "${toolchain}/lib/rustlib/src/rust/library";
-        };
+        devShells.default =
+          with pkgs;
+          mkShell {
+            buildInputs = [
+              openssl
+              pkg-config
+              eza
+              fd
+              rust-bin.stable.latest.complete
+            ];
+          };
       }
     );
 }
