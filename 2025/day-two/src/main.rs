@@ -24,22 +24,45 @@ fn main() {
     let mut sum_invalids = 0;
 
     for (start, end) in inputs {
-        for number in start..end + 1 {
-            // Treat as string so we can split in half
+        for number in start..=end {
+            // Treat as string so we can do slices
             let digits = number.to_string();
+            // Get the length for indexing slices
+            let length = digits.len();
 
-            let mid = digits.len() / 2;
+            for pattern_len in 1..=length / 2 {
+                // If the modulo isn't 0, the pattern can't repeat
+                if length % pattern_len != 0 {
+                    continue;
+                }
 
-            let left = &digits[..mid];
-            let right = &digits[mid..];
+                // Get the current slice as the pattern
+                let pattern = &digits[..pattern_len];
 
-            // If the halves match, it's invalid
-            if left == right {
-                println!("{}, {}", left, right);
-                sum_invalids += number;
+                // Check if the digits is entirely made up of this slice repeating
+                if is_all_repititions(&digits, pattern) {
+                    sum_invalids += number;
+                    break;
+                }
             }
         }
     }
 
     println!("{}", sum_invalids)
+}
+
+fn is_all_repititions(string: &str, pattern: &str) -> bool {
+    // Base case: If string is empty, we've matched everything
+    if string.is_empty() {
+        return true;
+    }
+
+    // Recursive case: If string starts with the pattern, recursively check the
+    // rest of the string
+    if let Some(remainder) = string.strip_prefix(pattern) {
+        return is_all_repititions(remainder, pattern);
+    }
+
+    // If the string didn't start with the pattern, it's not all reptitions
+    false
 }
