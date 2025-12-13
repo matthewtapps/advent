@@ -30,20 +30,30 @@ fn parse_file(file_path: impl AsRef<Path>) -> (Vec<(i64, i64)>, Vec<i64>) {
 }
 
 fn main() {
-    let (ranges, values) = parse_file(INPUT);
+    let (mut ranges, _values) = parse_file(INPUT);
 
     let mut fresh = 0;
 
-    for value in &values {
-        for (start, end) in &ranges {
-            // if value is between start and end of a range, it's fresh
-            if value >= start && value <= end {
-                fresh += 1;
-                // stop checking ranges to prevent double counts
-                break;
-            }
+    ranges.sort_by(|(a, _b), (c, _d)| a.cmp(c));
+
+    let (mut current_start, mut current_end) = ranges[0];
+
+    for (start, end) in ranges {
+        // if the next range is continuous with the previous range,
+        if start <= current_end + 1 {
+            // combine them and continue
+            current_end = current_end.max(end);
+        } else {
+            // otherwise, count the values between and add to the total
+            fresh += current_end - current_start +1;
+            // update current start and end to the new values
+            current_start = start;
+            current_end = end;
         }
     }
+
+    // at the end, count the last range we were investigating
+    fresh += current_end - current_start + 1;
 
     println!("{}", fresh);
 }
